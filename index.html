@@ -1,0 +1,64 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#111827" />
+  <title>ABCD List</title>
+  <link rel="icon" href="icon.svg" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <div>
+      <p class="eyebrow">ABCD List</p>
+      <h1>Attack the day.</h1>
+    </div>
+    <div class="topControls">
+      <div class="viewToggle" aria-label="Choose layout view">
+        <button id="gridViewBtn" class="viewBtn active" title="Four-square view" aria-label="Four-square view">▦</button>
+        <button id="scrollViewBtn" class="viewBtn" title="Scroll view" aria-label="Scroll view">☰</button>
+      </div>
+      <button id="completedBtn" class="ghost">Completed</button>
+    </div>
+  </header>
+
+  <main id="grid" class="grid"></main>
+
+  <section id="completedPanel" class="panel hidden" aria-live="polite">
+    <div class="panelHead">
+      <h2>Completed Tasks</h2>
+      <button id="closeCompleted" class="ghost">Close</button>
+    </div>
+    <div id="completedFilters" class="filters" aria-label="Completed task filters"></div>
+    <ul id="completedList" class="completed"></ul>
+    <button id="clearCompleted" class="danger">Clear Completed</button>
+  </section>
+
+  <template id="columnTemplate">
+    <section class="column">
+      <div class="colHead">
+        <div>
+          <span class="letter"></span>
+          <h2></h2>
+          <p></p>
+        </div>
+        <span class="count"></span>
+      </div>
+      <form class="addForm">
+        <input placeholder="Add task..." autocomplete="off" />
+        <button type="submit">Add</button>
+      </form>
+      <ul class="tasks"></ul>
+    </section>
+  </template>
+
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js');
+    }
+  </script>
+</body>
+</html>
