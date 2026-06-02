@@ -12,7 +12,10 @@
 <body>
   <header>
     <div>
-      <p class="eyebrow">ABCD List</p>
+      <div class="listPicker" aria-label="ABCD list switcher">
+        <select id="listSelect" title="Switch ABCD list"></select>
+        <button id="newListBtn" class="ghost miniBtn" title="New ABCD list" aria-label="New ABCD list">＋</button>
+      </div>
       <h1>Attack the day.</h1>
     </div>
     <div class="topControls">
@@ -21,8 +24,11 @@
         <button id="scrollViewBtn" class="viewBtn" title="Scroll view" aria-label="Scroll view">☰</button>
       </div>
       <button id="completedBtn" class="ghost">Completed</button>
+      <button id="settingsBtn" class="ghost iconBtn" title="Settings" aria-label="Settings">⚙</button>
     </div>
   </header>
+
+  <section id="progress" class="progress" aria-live="polite"></section>
 
   <main id="grid" class="grid"></main>
 
@@ -36,6 +42,90 @@
     <button id="clearCompleted" class="danger">Clear Completed</button>
   </section>
 
+  <section id="settingsPanel" class="panel hidden" aria-live="polite">
+    <div class="panelHead">
+      <h2>Settings</h2>
+      <button id="closeSettings" class="ghost">Close</button>
+    </div>
+    <label class="settingRow">
+      <span>Attack limit</span>
+      <input id="attackLimit" type="number" min="1" inputmode="numeric" />
+    </label>
+    <label class="settingRow checkRow">
+      <span>Due by date/time on new tasks</span>
+      <input id="dueToggle" type="checkbox" />
+    </label>
+    <label class="settingRow">
+      <span>Progress style</span>
+      <select id="gameStyle">
+        <option value="xp">Video game XP bar</option>
+        <option value="simple">Simple completed count</option>
+      </select>
+    </label>
+    <label class="settingRow">
+      <span>Layout scheme</span>
+      <select id="themeScheme">
+        <option value="dark">Basic dark</option>
+        <option value="light">Basic light</option>
+        <option value="retro">Retro game</option>
+        <option value="aero">Frutiger Aero / XP</option>
+        <option value="mushroom">Mushroom cottage</option>
+        <option value="custom">Custom photo</option>
+        <option value="floral">Abstract floral</option>
+      </select>
+    </label>
+    <div id="customThemeSettings" class="customThemeSettings hidden">
+      <label class="settingRow">
+        <span>Custom base</span>
+        <select id="customThemeBase">
+          <option value="dark">Dark cards</option>
+          <option value="light">Light cards</option>
+        </select>
+      </label>
+      <label class="settingRow fileRow">
+        <span>Background photo</span>
+        <input id="customBgUpload" type="file" accept="image/*" />
+      </label>
+      <div class="customThemeActions">
+        <button id="clearCustomBg" class="ghost" type="button">Clear custom photo</button>
+        <small id="customBgStatus">Choose a photo from your phone. It stays saved on this device.</small>
+      </div>
+    </div>
+    <h3>ABCD lists</h3>
+    <div class="menuGrid compactMenu">
+      <button id="renameListBtn" class="ghost">Rename current list</button>
+      <button id="deleteListBtn" class="ghost">Delete current list</button>
+    </div>
+    <h3>Backup</h3>
+    <div class="menuGrid compactMenu">
+      <button id="exportBackupBtn" class="ghost" type="button">Export backup</button>
+      <label class="importBackup ghost">
+        Import backup
+        <input id="importBackupInput" type="file" accept="application/json,.json" />
+      </label>
+    </div>
+    <small class="backupHint">Use this before major updates. It saves your lists/tasks/settings as a JSON file.</small>
+    <h3>Deleted tasks</h3>
+    <ul id="deletedList" class="completed"></ul>
+    <button id="restoreDefaults" class="ghost fullWidth">Restore Default Settings</button>
+  </section>
+
+  <section id="taskPanel" class="panel smallPanel hidden" aria-live="polite">
+    <div class="panelHead">
+      <h2 id="taskPanelTitle">Task</h2>
+      <button id="closeTaskPanel" class="ghost">Close</button>
+    </div>
+    <div id="taskPanelBody" class="menuGrid"></div>
+  </section>
+
+  <section id="swapPanel" class="panel smallPanel hidden" aria-live="polite">
+    <div class="panelHead">
+      <h2>Attack is full — choose what to swap</h2>
+      <button id="closeSwapPanel" class="ghost">Cancel</button>
+    </div>
+    <div id="swapList" class="menuGrid"></div>
+  </section>
+
   <template id="columnTemplate">
     <section class="column">
       <div class="colHead">
@@ -47,7 +137,8 @@
         <span class="count"></span>
       </div>
       <form class="addForm">
-        <input placeholder="Add task..." autocomplete="off" />
+        <input class="taskInput" placeholder="Add task..." autocomplete="off" />
+        <input class="dueInput hidden" type="datetime-local" aria-label="Due by" />
         <button type="submit">Add</button>
       </form>
       <ul class="tasks"></ul>

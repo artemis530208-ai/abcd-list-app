@@ -1,11 +1,14 @@
-const CACHE_NAME = 'abcd-list-v1';
+const CACHE_NAME = 'abcd-list-v11';
 const FILES_TO_CACHE = [
   './',
   './index.html',
   './styles.css',
   './app.js',
   './manifest.json',
-  './icon.svg'
+  './icon.svg',
+  './assets/frutiger-aero-bg.png',
+  './assets/retro-game-bg.png',
+  './assets/mushroom-cottage-bg.png'
 ];
 
 self.addEventListener('install', event => {
@@ -27,6 +30,12 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   event.respondWith(
-    caches.match(event.request).then(cached => cached || fetch(event.request))
+    fetch(event.request)
+      .then(response => {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
