@@ -1,4 +1,4 @@
-const CACHE_NAME = 'abcd-list-v11';
+const CACHE_NAME = 'abcd-list-v17';
 const FILES_TO_CACHE = [
   './',
   './index.html',
@@ -16,6 +16,10 @@ self.addEventListener('install', event => {
     caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
   );
   self.skipWaiting();
+});
+
+self.addEventListener('message', event => {
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('activate', event => {
