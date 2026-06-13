@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -7,7 +7,7 @@
   <title>ABCD List</title>
   <link rel="icon" href="icon.svg" />
   <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=17" />
 </head>
 <body>
   <header>
@@ -20,8 +20,8 @@
     </div>
     <div class="topControls">
       <div class="viewToggle" aria-label="Choose layout view">
-        <button id="gridViewBtn" class="viewBtn active" title="Four-square view" aria-label="Four-square view">▦</button>
-        <button id="scrollViewBtn" class="viewBtn" title="Scroll view" aria-label="Scroll view">☰</button>
+        <button id="gridViewBtn" class="viewBtn active" title="Grid view" aria-label="Grid view">Grid</button>
+        <button id="scrollViewBtn" class="viewBtn" title="List view" aria-label="List view">List</button>
       </div>
       <button id="completedBtn" class="ghost">Completed</button>
       <button id="settingsBtn" class="ghost iconBtn" title="Settings" aria-label="Settings">⚙</button>
@@ -50,6 +50,10 @@
     <label class="settingRow">
       <span>Attack limit</span>
       <input id="attackLimit" type="number" min="1" inputmode="numeric" />
+    </label>
+    <label class="settingRow checkRow">
+      <span>Auto-bump Attack overflow <small>When Attack is full, adding a new Attack task moves the bottom Attack task to Do.</small></span>
+      <input id="autoBumpAttackToggle" type="checkbox" />
     </label>
     <label class="settingRow checkRow">
       <span>Due by date/time on new tasks</span>
@@ -145,10 +149,28 @@
     </section>
   </template>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=17"></script>
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js');
+      let reloadedForUpdate = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (reloadedForUpdate) return;
+        reloadedForUpdate = true;
+        window.location.reload();
+      });
+      navigator.serviceWorker.register('service-worker.js?v=17').then(registration => {
+        registration.update();
+        if (registration.waiting) registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+        registration.addEventListener('updatefound', () => {
+          const worker = registration.installing;
+          if (!worker) return;
+          worker.addEventListener('statechange', () => {
+            if (worker.state === 'installed' && navigator.serviceWorker.controller) {
+              worker.postMessage({ type: 'SKIP_WAITING' });
+            }
+          });
+        });
+      });
     }
   </script>
 </body>
