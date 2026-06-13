@@ -2,11 +2,12 @@ const columns = {
   A: { title: 'Attack', desc: 'Top priorities for today.' },
   B: { title: 'Buy', desc: 'Things you need to buy.' },
   C: { title: 'Call', desc: 'People you need to call.' },
-  D: { title: 'Due', desc: 'Backlog / tasks waiting their turn.' }
+  D: { title: 'Do', desc: 'Backlog / tasks waiting their turn.' }
 };
 
 const DEFAULT_SETTINGS = {
   attackLimit: 5,
+  autoBumpAttack: false,
   dueDates: false,
   gameStyle: 'xp',
   theme: 'dark',
@@ -110,8 +111,15 @@ function render() {
       const text = input.value.trim();
       if (!text) return;
       const task = { id: uid(), text, dueAt: state.settings.dueDates ? dueInput.value : '', createdAt: new Date().toISOString() };
-      if (key === 'A' && state.A.length >= attackLimit()) state.D.push(task);
-      else state[key].push(task);
+      if (key === 'A' && state.A.length >= attackLimit()) {
+        if (state.settings.autoBumpAttack) {
+          const bumped = state.A.pop();
+          if (bumped) state.D.unshift(bumped);
+          state.A.push(task);
+        } else {
+          state.D.push(task);
+        }
+      } else state[key].push(task);
       input.value = '';
       dueInput.value = '';
       render();
@@ -290,6 +298,7 @@ function renderCompletedFilters() {
 
 function renderSettings() {
   const limit = document.querySelector('#attackLimit');
+  const autoBumpToggle = document.querySelector('#autoBumpAttackToggle');
   const dueToggle = document.querySelector('#dueToggle');
   const style = document.querySelector('#gameStyle');
   const theme = document.querySelector('#themeScheme');
@@ -298,6 +307,7 @@ function renderSettings() {
   const customStatus = document.querySelector('#customBgStatus');
   if (!limit) return;
   limit.value = attackLimit();
+  autoBumpToggle.checked = !!state.settings.autoBumpAttack;
   dueToggle.checked = !!state.settings.dueDates;
   style.value = state.settings.gameStyle || 'xp';
   theme.value = state.settings.theme || 'dark';
@@ -477,6 +487,7 @@ document.querySelector('#deleteListBtn').onclick = deleteCurrentList;
 document.querySelector('#exportBackupBtn').onclick = exportBackup;
 document.querySelector('#importBackupInput').onchange = e => importBackup(e.target.files?.[0]);
 document.querySelector('#attackLimit').onchange = e => { state.settings.attackLimit = Math.max(1, Number(e.target.value) || 5); render(); };
+document.querySelector('#autoBumpAttackToggle').onchange = e => { state.settings.autoBumpAttack = e.target.checked; render(); };
 document.querySelector('#dueToggle').onchange = e => { state.settings.dueDates = e.target.checked; render(); };
 document.querySelector('#gameStyle').onchange = e => { state.settings.gameStyle = e.target.value; render(); };
 document.querySelector('#themeScheme').onchange = e => { state.settings.theme = e.target.value; render(); };
